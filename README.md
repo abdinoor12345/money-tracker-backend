@@ -1,60 +1,217 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+ # Money Tracker API - Complete Project Overview
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 📋 What You're Building
 
-## About Laravel
+A RESTful API for managing multiple wallets and transactions. Users can create accounts, manage multiple wallets, add income/expense transactions, and view their profile with total balance.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🏗️ Architecture
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Models (Database Entities)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**1. User Model**
+- Fields: id, name, email, created_at, updated_at
+- Relationships: hasMany(Wallet)
+- Methods: getTotalBalanceAttribute() - calculates sum of all wallet balances
 
-## Learning Laravel
+**2. Wallet Model**
+- Fields: id, user_id, name, balance, created_at, updated_at
+- Relationships: belongsTo(User), hasMany(Transaction)
+- Methods: addTransaction() - updates balance based on transaction type
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+**3. Transaction Model**
+- Fields: id, wallet_id, type (enum: income/expense), amount, description, created_at, updated_at
+- Relationships: belongsTo(Wallet)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Controllers (Business Logic)
 
-## Laravel Sponsors
+**1. UserController**
+- store() - Create new user account
+  - Validates: name (required, string), email (required, unique, email)
+  - Returns: Created user with 201 status
+  
+- show() - Get user profile with all wallets and total balance
+  - Returns: User data, all wallets, total_balance
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**2. WalletController**
+- store() - Create wallet for a user
+  - Validates: user_id (exists in users), name (required, string)
+  - Returns: Created wallet with 201 status
+  
+- show() - Get wallet details with all transactions
+  - Returns: Wallet data, transactions array, transaction_count
 
-### Premium Partners
+**3. TransactionController**
+- store() - Add transaction to wallet
+  - Validates: type (income/expense), amount (numeric, min 0.01), description (optional)
+  - Updates wallet balance automatically
+  - Returns: Created transaction with updated wallet balance
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Routes (API Endpoints)
 
-## Contributing
+```
+POST   /api/users                          - Create user
+GET    /api/users/{id}                     - Get user profile
+POST   /api/wallets                        - Create wallet
+GET    /api/wallets/{id}                   - Get wallet details
+POST   /api/wallets/{walletId}/transactions - Add transaction
+GET    /api/health                         - Health check
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 💾 Database Design
 
-## Code of Conduct
+### Relationships
+```
+User
+  ├── hasMany → Wallets
+  
+Wallet
+  ├── belongsTo → User
+  └── hasMany → Transactions
+  
+Transaction
+  └── belongsTo → Wallet
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Data Flow
+1. User creates account → User created in database
+2. User creates wallet → Wallet created with balance = 0
+3. User adds income transaction → Wallet balance increases
+4. User adds expense transaction → Wallet balance decreases
+5. User views profile → All wallets and total balance returned
 
-## Security Vulnerabilities
+## ✅ Validation
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### User Creation
+- name: required, string, max 255
+- email: required, email format, unique
 
-## License
+### Wallet Creation
+- user_id: required, must exist in users table
+- name: required, string, max 255
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# money-tracker-backend
+### Transaction Creation
+- type: required, must be 'income' or 'expense'
+- amount: required, numeric, minimum 0.01
+- description: optional, string, max 255
+
+## 🎯 Key Features
+
+1. **Multiple Wallets Per User** - Users can have different wallets for different purposes
+2. **Automatic Balance Calculation** - Income adds, expense subtracts automatically
+3. **Transaction Tracking** - All transactions stored with timestamp and description
+4. **No Authentication** - User creation doesn't require authentication
+5. **RESTful Design** - Clean, standard API design
+6. **Error Handling** - Consistent error responses with validation details
+7. **Decimal Precision** - Amounts stored with 2 decimal places for accuracy
+
+## 📁 File Locations
+
+```
+app/Models/
+├── User.php
+├── Wallet.php
+└── Transaction.php
+
+app/Http/Controllers/Api/
+├── UserController.php
+├── WalletController.php
+└── TransactionController.php
+
+database/migrations/
+├── YYYY_MM_DD_HHMMSS_create_users_table.php
+├── YYYY_MM_DD_HHMMSS_create_wallets_table.php
+└── YYYY_MM_DD_HHMMSS_create_transactions_table.php
+
+routes/
+└── api.php
+```
+
+## 🚀 Quick Start
+
+1. Create Laravel project
+2. Copy models to app/Models/
+3. Copy controllers to app/Http/Controllers/Api/
+4. Copy migrations to database/migrations/
+5. Update routes/api.php
+6. Update .env with database credentials
+7. Run: php artisan migrate
+8. Run: php artisan serve
+9. Test endpoints with Postman or curl
+
+## 📊 Example API Usage Flow
+
+### 1. Create User
+```bash
+POST /api/users
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+```
+
+### 2. Create Wallet
+```bash
+POST /api/wallets
+{
+  "user_id": 1,
+  "name": "Business Account"
+}
+```
+
+### 3. Add Income Transaction
+```bash
+POST /api/wallets/1/transactions
+{
+  "type": "income",
+  "amount": 2000,
+  "description": "Client payment"
+}
+```
+
+### 4. Add Expense Transaction
+```bash
+POST /api/wallets/1/transactions
+{
+  "type": "expense",
+  "amount": 500,
+  "description": "Office supplies"
+}
+```
+
+### 5. View User Profile
+```bash
+GET /api/users/1
+```
+
+Returns:
+- User details
+- All wallets with balances
+- Total balance across all wallets
+
+### 6. View Wallet with Transactions
+```bash
+GET /api/wallets/1
+```
+
+Returns:
+- Wallet details with current balance
+- All transactions for that wallet
+- Transaction count
+
+## 🔒 Data Integrity
+
+- Foreign key constraints ensure data consistency
+- CASCADE delete removes wallets/transactions if user is deleted
+- Decimal validation prevents invalid amounts
+- Enum validation restricts transaction type to 'income' or 'expense'
+- Unique email prevents duplicate user accounts
+
+## 📝 Clean Code Features
+
+- Clear method names describing functionality
+- Inline comments explaining logic
+- Consistent error responses
+- DRY principles followed
+- Proper use of Laravel conventions
+- Validation separated from business logic
+- Relationships properly defined
