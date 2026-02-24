@@ -15,11 +15,11 @@ Route::post('/wallets/{walletId}/transactions', [TransactionController::class, '
 //Transaction routes
 Route::post('/wallets/{walletId}/transactions', [TransactionController::class, 'store']);
 
-// Health check endpoint
+// Health check endpoint.
 Route::get('/health', function () {
     return response()->json(['status' => 'OK'], 200);
 });
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
