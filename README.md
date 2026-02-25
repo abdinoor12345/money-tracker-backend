@@ -1,10 +1,9 @@
  # Money Tracker API - Complete Project Overview
 
-## 📋 What You're Building
-
+ 
 A RESTful API for managing multiple wallets and transactions. Users can create accounts, manage multiple wallets, add income/expense transactions, and view their profile with total balance.
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Models (Database Entities)
 
@@ -57,7 +56,7 @@ POST   /api/wallets/{walletId}/transactions - Add transaction
 GET    /api/health                         - Health check
 ```
 
-## 💾 Database Design
+##  Database Design
 
 ### Relationships
 ```
@@ -219,7 +218,7 @@ Returns:
 - Relationships properly defined
 
 
-## 📸 Architecture Diagram
+## Architecture Diagram
 
 ```
 ┌─────────────┐
