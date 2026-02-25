@@ -7,31 +7,29 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
  
-
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $users = User::all();
+        return response()->json($users, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
- public function store(Request $request)
+    
+  public function store(Request $request)
     {
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
             ]);
+
+            // HASH THE PASSWORD
+            $validated['password'] = bcrypt($validated['password']);
 
             $user = User::create($validated);
 
@@ -90,4 +88,5 @@ class UserController extends Controller
     {
         //
     }
+
 }

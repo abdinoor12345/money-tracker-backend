@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
 use Illuminate\Http\Request;
-
+use App\Models\Transaction;
+use App\Models\Wallet;
+ use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Controller;
 class Walletcontroller extends Controller
 {
     /**
@@ -98,5 +100,9 @@ class Walletcontroller extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

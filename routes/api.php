@@ -6,12 +6,9 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\TransactionController;
 
-Route::post('/users', [UserController::class, 'store']);
-Route::get('/users/{id}', [UserController::class, 'show']);
-
+ Route::apiResource('users', UserController::class);
 Route::post('/wallets', [WalletController::class, 'store']);
-Route::post('/wallets/{walletId}/transactions', [TransactionController::class, 'store']);
-
+ Route::get('/wallets/{id}', [WalletController::class, 'show']);
 //Transaction routes
 Route::post('/wallets/{walletId}/transactions', [TransactionController::class, 'store']);
 
@@ -19,7 +16,3 @@ Route::post('/wallets/{walletId}/transactions', [TransactionController::class, '
 Route::get('/health', function () {
     return response()->json(['status' => 'OK'], 200);
 });
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');

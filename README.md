@@ -79,11 +79,12 @@ Transaction
 4. User adds expense transaction → Wallet balance decreases
 5. User views profile → All wallets and total balance returned
 
-## ✅ Validation
+## Validation
 
 ### User Creation
 - name: required, string, max 255
 - email: required, email format, unique
+-password:required,hashed
 
 ### Wallet Creation
 - user_id: required, must exist in users table
@@ -94,7 +95,7 @@ Transaction
 - amount: required, numeric, minimum 0.01
 - description: optional, string, max 255
 
-## 🎯 Key Features
+## Key Features
 
 1. **Multiple Wallets Per User** - Users can have different wallets for different purposes
 2. **Automatic Balance Calculation** - Income adds, expense subtracts automatically
@@ -104,7 +105,7 @@ Transaction
 6. **Error Handling** - Consistent error responses with validation details
 7. **Decimal Precision** - Amounts stored with 2 decimal places for accuracy
 
-## 📁 File Locations
+## File Locations
 
 ```
 app/Models/
@@ -126,7 +127,7 @@ routes/
 └── api.php
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 1. Create Laravel project
 2. Copy models to app/Models/
@@ -138,14 +139,15 @@ routes/
 8. Run: php artisan serve
 9. Test endpoints with Postman or curl
 
-## 📊 Example API Usage Flow
+## Example API Usage Flow
 
 ### 1. Create User
 ```bash
 POST /api/users
 {
   "name": "John Doe",
-  "email": "john@example.com"
+  "email": "john@example.com",
+  "password":"123456789"
 }
 ```
 
@@ -198,7 +200,7 @@ Returns:
 - All transactions for that wallet
 - Transaction count
 
-## 🔒 Data Integrity
+##  Data Integrity
 
 - Foreign key constraints ensure data consistency
 - CASCADE delete removes wallets/transactions if user is deleted
@@ -206,7 +208,7 @@ Returns:
 - Enum validation restricts transaction type to 'income' or 'expense'
 - Unique email prevents duplicate user accounts
 
-## 📝 Clean Code Features
+## Clean Code Features
 
 - Clear method names describing functionality
 - Inline comments explaining logic
@@ -215,3 +217,48 @@ Returns:
 - Proper use of Laravel conventions
 - Validation separated from business logic
 - Relationships properly defined
+
+
+## 📸 Architecture Diagram
+
+```
+┌─────────────┐
+│    User     │
+│  (Account)  │
+└──────┬──────┘
+  │ hasMany
+  │
+  ▼
+┌─────────────────────┐
+│  Wallet(s)          │
+│ (Multiple per user) │
+└──────┬──────────────┘
+  │ hasMany
+  │
+  ▼
+┌─────────────────────┐
+│  Transaction(s)     │
+│ (Income/Expense)    │
+└─────────────────────┘
+```
+
+## 🔄 API Request Flow
+
+```
+Client Request
+     │
+     ▼
+Route (api.php)
+     │
+     ▼
+Controller (Validation)
+     │
+     ▼
+Model (Database Operation)
+     │
+     ▼
+JSON Response
+```
+
+
+
